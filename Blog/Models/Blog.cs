@@ -13,7 +13,7 @@ namespace Blog.Models
 
 
         [Required]
-        public DateTime ReleaseDate { get; set; }
+        public DateTime? ReleaseDate { get; set; }
 
 
         [Required]
@@ -32,8 +32,8 @@ namespace Blog.Models
         public int ViewNum { get; set; }
 
         //外键
-        public int SortId { get; set; }
+        [Required]
+        public int? SortId { get; set; }
         public Sort Sort { get; set; }
-
     }
 }

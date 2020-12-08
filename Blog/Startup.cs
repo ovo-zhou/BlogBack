@@ -33,7 +33,7 @@ namespace Blog
             services.AddControllers();
             services.AddSwaggerGen();
             services.AddDbContext<Context>(options =>
-            options.UseMySQL(Configuration.GetConnectionString("MysqlString")));
+                options.UseMySQL(Configuration.GetConnectionString("MysqlString")));
             services.Configure<TokenManagement>(Configuration.GetSection("tokenManagement"));
             var token = Configuration.GetSection("tokenManagement").Get<TokenManagement>();
             services.AddAuthentication(x =>
@@ -55,6 +55,14 @@ namespace Blog
                 };
             });
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("any",
+                                  builder =>
+                                  {
+                                      builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                                  });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,9 +78,11 @@ namespace Blog
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
                 c.RoutePrefix = string.Empty;
             });
+            app.UseStaticFiles();
             app.UseAuthentication();
             
             app.UseRouting();
+            app.UseCors("any");
 
             app.UseAuthorization();
 

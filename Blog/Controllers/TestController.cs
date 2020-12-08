@@ -10,14 +10,19 @@ namespace Blog.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class TestController : ControllerBase
     {
         [HttpGet]
         [Route("Get")]
-        public string Get()
+        public string Get(string name)
         {
-            return "成功";
+            return name;
+        }
+        [HttpPost]
+        [Route("post")]
+        public ActionResult Post(string name)
+        {
+            return Ok(name);
         }
     }
 }
