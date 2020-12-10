@@ -14,9 +14,9 @@ namespace Blog.Controllers
     {
         [HttpGet]
         [Route("Get")]
-        public string Get(string name)
+        public IActionResult Get(DateTime dateTime)
         {
-            return name;
+            return Ok(dateTime);
         }
         [HttpPost]
         [Route("post")]

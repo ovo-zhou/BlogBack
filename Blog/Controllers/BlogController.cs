@@ -52,5 +52,21 @@ namespace Blog.Controllers
             }
             return BadRequest("参数不完整");
         }
+        [HttpPost]
+        [Route("UpdateBlog")]
+        public IActionResult UpdateBlog(Models.Blog blog)
+        {
+            if(ModelState.IsValid)
+            {
+                Models.Blog updateBlog = _context.Blogs.FirstOrDefault(b=>b.BlogId==blog.BlogId);
+                updateBlog.Title = blog.Title;
+                updateBlog.ReleaseDate = blog.ReleaseDate;
+                updateBlog.Content = blog.Content;
+                _context.Blogs.Attach(updateBlog).State= Microsoft.EntityFrameworkCore.EntityState.Modified;
+                _context.SaveChanges();
+                return Ok();
+            }
+            return BadRequest();
+        }
     }
 }
