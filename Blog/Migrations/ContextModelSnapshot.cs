@@ -31,10 +31,12 @@ namespace Blog.Migrations
                     b.Property<int>("LikeNum")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ReleaseDate")
+                    b.Property<DateTime?>("ReleaseDate")
+                        .IsRequired()
                         .HasColumnType("datetime");
 
-                    b.Property<int>("SortId")
+                    b.Property<int?>("SortId")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -49,6 +51,32 @@ namespace Blog.Migrations
                     b.HasIndex("SortId");
 
                     b.ToTable("Blogs");
+                });
+
+            modelBuilder.Entity("Blog.Models.Music", b =>
+                {
+                    b.Property<int>("MusicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasColumnType("varchar(30)")
+                        .HasMaxLength(30);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("varchar(150)")
+                        .HasMaxLength(150);
+
+                    b.HasKey("MusicId");
+
+                    b.ToTable("Musics");
                 });
 
             modelBuilder.Entity("Blog.Models.Sort", b =>

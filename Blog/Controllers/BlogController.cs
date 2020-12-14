@@ -68,5 +68,18 @@ namespace Blog.Controllers
             }
             return BadRequest();
         }
+        [HttpGet]
+        [Route("DeleteBlog")]
+        public IActionResult DeleteBlog(int id)
+        {
+           var blog=  _context.Blogs.FirstOrDefault(b => b.BlogId == id);
+            if(blog!=null)
+            {
+                _context.Blogs.Remove(blog);
+                _context.SaveChanges();
+                return Ok();
+            }
+            return NoContent();
+        }
     }
 }
