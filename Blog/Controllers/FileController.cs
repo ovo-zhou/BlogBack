@@ -23,25 +23,20 @@ namespace Blog.Controllers
         [HttpPost]
         [Route("FileUpload")]
         //先统一将文件保存在wwwroot/upload下
-        public async Task<IActionResult> FileUpload(List<IFormFile> files)
+        public async Task<IActionResult> FileUpload(IFormFile file)
         {
-            List<string> newFileNames = new List<string>();
-            if (files.Count > 0)
+            if (file.Length > 0)
             {
                 string fileFolder = Path.Combine(_host.WebRootPath, "upload");//文件保存的文件夹
-                foreach (IFormFile file in files)
+                string newFileName = Guid.NewGuid().ToString() + "_" + file.FileName;//生成唯一的文件名
+                string filePath = Path.Combine(fileFolder, newFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    string newFileName = Guid.NewGuid().ToString() + "_" + file.FileName;//生成唯一的文件名
-                    string filePath = Path.Combine(fileFolder, newFileName);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await file.CopyToAsync(fileStream);
-                    }
-                    newFileNames.Add(newFileName);
+                    await file.CopyToAsync(fileStream);
                 }
+                return Ok(newFileName);
             }
-            return Ok(newFileNames);
-
+            return BadRequest();
         }
         [HttpPost]
         [Route("FileDelete")]
@@ -75,7 +70,7 @@ namespace Blog.Controllers
             {
                 await file.CopyToAsync(fileStream);
             }
-            return Ok(new { location= "/upload/"+newFileName });
+            return Ok(new { location = "/upload/" + newFileName });
         }
     }
 }

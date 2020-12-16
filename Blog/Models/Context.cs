@@ -21,6 +21,7 @@ namespace Blog.Models
         public DbSet<Blog> Blogs { get; set; }
         //音乐表
         public DbSet<Music> Musics { get; set; }
+        public DbSet<Link> Links { get; set; }
 
     }
 }
