@@ -14,7 +14,7 @@ namespace Blog.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.9")
+                .HasAnnotation("ProductVersion", "3.1.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Blog.Models.Blog", b =>
@@ -23,10 +23,17 @@ namespace Blog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("Abstract")
+                        .HasColumnType("varchar(500)")
+                        .HasMaxLength(500);
+
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasMaxLength(5000);
+                        .HasColumnType("text");
+
+                    b.Property<string>("CoverImg")
+                        .HasColumnType("varchar(100)")
+                        .HasMaxLength(100);
 
                     b.Property<int>("LikeNum")
                         .HasColumnType("int");
@@ -35,13 +42,15 @@ namespace Blog.Migrations
                         .IsRequired()
                         .HasColumnType("datetime");
 
-                    b.Property<int?>("SortId")
-                        .IsRequired()
+                    b.Property<int>("SortId")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Top")
+                        .HasColumnType("int");
 
                     b.Property<int>("ViewNum")
                         .HasColumnType("int");
@@ -53,56 +62,28 @@ namespace Blog.Migrations
                     b.ToTable("Blogs");
                 });
 
-            modelBuilder.Entity("Blog.Models.Link", b =>
+            modelBuilder.Entity("Blog.Models.Message", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("LinkIcon")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("LinkName")
+                    b.Property<string>("Contact")
                         .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasMaxLength(50);
 
-                    b.Property<string>("Url")
+                    b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("varchar(150)")
-                        .HasMaxLength(150);
+                        .HasColumnType("varchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Links");
-                });
-
-            modelBuilder.Entity("Blog.Models.Music", b =>
-                {
-                    b.Property<int>("MusicId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Author")
-                        .IsRequired()
-                        .HasColumnType("varchar(30)")
-                        .HasMaxLength(30);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
-                        .HasMaxLength(50);
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("varchar(150)")
-                        .HasMaxLength(150);
-
-                    b.HasKey("MusicId");
-
-                    b.ToTable("Musics");
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Blog.Models.Sort", b =>
@@ -127,6 +108,14 @@ namespace Blog.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("Introduction")
+                        .HasColumnType("varchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<string>("Motto")
+                        .HasColumnType("varchar(100)")
+                        .HasMaxLength(100);
+
                     b.Property<string>("NickName")
                         .HasColumnType("varchar(20)");
 
@@ -135,8 +124,8 @@ namespace Blog.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("UserAvatar")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100);
+                        .HasColumnType("varchar(200)")
+                        .HasMaxLength(200);
 
                     b.Property<string>("UserName")
                         .IsRequired()

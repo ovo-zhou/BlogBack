@@ -19,9 +19,7 @@ namespace Blog.Models
         public DbSet<Sort> Sorts { get; set; }
         //文章表
         public DbSet<Blog> Blogs { get; set; }
-        //音乐表
-        public DbSet<Music> Musics { get; set; }
-        public DbSet<Link> Links { get; set; }
-
+        //留言表
+        public DbSet<Message> Messages { get; set; }
     }
 }

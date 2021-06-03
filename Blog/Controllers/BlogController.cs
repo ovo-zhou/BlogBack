@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
-using Blog.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
+using Blog.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Blog.Controllers
 {
@@ -17,69 +15,126 @@ namespace Blog.Controllers
     public class BlogController : ControllerBase
     {
         private readonly Context _context;
+
         public BlogController(Context context)
         {
             _context = context;
         }
+
+        // GET: api/Blog
         [HttpGet]
-        [Route("GetPreface")]
-        public async Task<IActionResult> GetPreface()
+        public async Task<ActionResult<IEnumerable<Models.Blog>>> GetBlogs()
         {
-            var preface= await _context.Sorts.ToListAsync();
-            return Ok(preface);
+            return await _context.Blogs.ToListAsync();
         }
-        [HttpGet]
-        [Route("GetTitleBySortId")]
-        public async Task<IActionResult> GetTitleBySortId(int sortId)
+
+        // GET: api/Blog/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Models.Blog>> GetBlog(int id)
         {
-            var bloglist= await _context.Blogs.Where(b => b.SortId == sortId).ToListAsync();
-            return Ok(bloglist);
-        }
-        //添加博客
-        [HttpPost]
-        [Route("AddBlog")]
-        public IActionResult AddBlog(Models.Blog blog)
-        {
-            if(ModelState.IsValid)
+            var blog = await _context.Blogs.FirstOrDefaultAsync(b=>b.BlogId==id);
+            if (blog == null)
             {
-                if(_context.Sorts.Any(s => s.SortId == blog.SortId))
+                return NotFound();
+            }
+
+            return blog;
+        }
+
+        // PUT: api/Blog/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutBlog(int id, Models.Blog blog)
+        {
+            if (id != blog.BlogId)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(blog).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BlogExists(id))
                 {
-                    _context.Blogs.Add(blog);
-                    _context.SaveChanges();
-                    return Ok();
+                    return NotFound();
                 }
-                return BadRequest("外键不完整");
+                else
+                {
+                    throw;
+                }
             }
-            return BadRequest("参数不完整");
-        }
-        [HttpPost]
-        [Route("UpdateBlog")]
-        public IActionResult UpdateBlog(Models.Blog blog)
-        {
-            if(ModelState.IsValid)
-            {
-                Models.Blog updateBlog = _context.Blogs.FirstOrDefault(b=>b.BlogId==blog.BlogId);
-                updateBlog.Title = blog.Title;
-                updateBlog.ReleaseDate = blog.ReleaseDate;
-                updateBlog.Content = blog.Content;
-                _context.Blogs.Attach(updateBlog).State= Microsoft.EntityFrameworkCore.EntityState.Modified;
-                _context.SaveChanges();
-                return Ok();
-            }
-            return BadRequest();
-        }
-        [HttpGet]
-        [Route("DeleteBlog")]
-        public IActionResult DeleteBlog(int id)
-        {
-           var blog=  _context.Blogs.FirstOrDefault(b => b.BlogId == id);
-            if(blog!=null)
-            {
-                _context.Blogs.Remove(blog);
-                _context.SaveChanges();
-                return Ok();
-            }
+
             return NoContent();
+        }
+
+        // POST: api/Blog
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Models.Blog>> PostBlog(Models.Blog blog)
+        {
+            _context.Blogs.Add(blog);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetBlog", new { id = blog.BlogId }, blog);
+        }
+
+        // DELETE: api/Blog/5
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Models.Blog>> DeleteBlog(int id)
+        {
+            var blog = await _context.Blogs.FindAsync(id);
+            if (blog == null)
+            {
+                return NotFound();
+            }
+
+            _context.Blogs.Remove(blog);
+            await _context.SaveChangesAsync();
+
+            return blog;
+        }
+
+        private bool BlogExists(int id)
+        {
+            return _context.Blogs.Any(e => e.BlogId == id);
+        }
+        [HttpGet("page/{id}")]
+        public async Task<ActionResult<List<Models.Blog>>> GetBlogByPage(int id)
+        {
+            return await _context.Blogs.Include(b => b.Sort).OrderByDescending(b => b.ReleaseDate).Skip(10 * (id - 1)).Take(10).ToListAsync();
+        }
+        [Authorize]
+        [HttpPut("{id}/Top")]
+        public async Task<ActionResult> ChangeTop(int id)
+        {
+            if (!BlogExists(id)) 
+            {
+                return NotFound();
+                    }
+            var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.BlogId == id);
+            if (string.IsNullOrWhiteSpace(blog.CoverImg))
+            {
+                return Ok(new { state = false, message = "当前博文没有封面图，请添加封面图后重试" });
+            }
+            blog.Top = blog.Top==1?0 : 1;
+            await _context.SaveChangesAsync();
+            return Ok(new { state = true, message = "更新置顶状态成功" });
+        }
+       
+        [HttpGet("carousel")]
+        public async Task<ActionResult<List<Models.Blog>>> GetCarousel()
+        {
+            return await _context.Blogs.Where(b => b.Top == 1).ToListAsync();
         }
     }
 }

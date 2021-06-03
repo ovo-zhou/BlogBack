@@ -24,21 +24,22 @@ namespace Blog.Controllers
         }
         [HttpPost]
         [Route("Login")]
-        public ActionResult Login(string username,string password)
+        public ActionResult Login(User user)
         {
-            List<User> users = _context.Users.Where(u => u.UserName.Contains(username)).ToList();
-            if (users.Count() == 0) 
+            if(ModelState.IsValid)
             {
+                User userFromDb= _context.Users.FirstOrDefault(u => u.UserName == user.UserName);
+                if(userFromDb!=null)
+                {
+                    if (userFromDb.Password == user.Password) {
+
+                        return Ok(this._authService.GetToken(user.UserName));
+                    }
+                    return BadRequest("密码错误");
+                }
                 return BadRequest("用户不存在");
             }
-            if (users[0].Password == password.Trim())
-            {
-                return Ok(this._authService.GetToken(username));
-            }
-            else
-            {
-               return BadRequest("密码错误");
-            }
+            return BadRequest("参数不完整");
         }
     }
 }

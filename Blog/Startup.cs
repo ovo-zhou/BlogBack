@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Serialization;
+using Blog.Util;
 
 namespace Blog
 {
@@ -24,13 +26,17 @@ namespace Blog
         {
             Configuration = configuration;
         }
-
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions
+            (
+                option =>
+                {
+                    option.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+                }
+            );
             services.AddSwaggerGen();
             services.AddDbContext<Context>(options =>
                 options.UseMySQL(Configuration.GetConnectionString("MysqlString")));
@@ -55,6 +61,7 @@ namespace Blog
                 };
             });
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
+            services.AddSingleton<IVerificationCode, VerificationCode>();
             services.AddCors(options =>
             {
                 options.AddPolicy("any",
@@ -64,8 +71,6 @@ namespace Blog
                                   });
             });
         }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -80,12 +85,9 @@ namespace Blog
             });
             app.UseStaticFiles();
             app.UseAuthentication();
-
             app.UseRouting();
             app.UseCors("any");
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
